@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Chart test02</string>
+
+    <string name="button">更換</string>
 </resources>

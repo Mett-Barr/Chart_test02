@@ -2,26 +2,63 @@ package com.example.charttest02
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
-    private lateinit var chart: BarChart
+    private lateinit var barChart: BarChart
+    private lateinit var lineChart: LineChart
+    private lateinit var pieChart: PieChart
+    private lateinit var bt: Button
+    var chartState = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        chart = findViewById(R.id.chart1)
-        chart.apply {
+        uiInit()
+    }
+
+    private fun uiInit() {
+        setBarChart()
+        setLineChart()
+        setPieChart()
+
+        bt = findViewById(R.id.button2)
+        bt.setOnClickListener {
+            chartState = when (chartState) {
+                0 -> {
+                    barChart.visibility = View.INVISIBLE
+                    lineChart.visibility = View.VISIBLE
+                    1
+                }
+                1 -> {
+                    lineChart.visibility = View.INVISIBLE
+                    pieChart.visibility = View.VISIBLE
+                    2
+                }
+                else -> {
+                    pieChart.visibility = View.INVISIBLE
+                    barChart.visibility = View.VISIBLE
+                    0
+                }
+            }
+        }
+    }
+
+    private fun setBarChart() {
+        barChart = findViewById(R.id.bar_chart)
+        barChart.apply {
             setOnChartValueSelectedListener(this@MainActivity)
             description.text = "Title"
             setNoDataText("No Data")
@@ -29,85 +66,95 @@ class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
             setPinchZoom(true)
 
+            setBackgroundColor(Color.WHITE)
             setDrawBarShadow(false)
             setScaleEnabled(false)
             isDoubleTapToZoomEnabled = true
 //            getAxis()
+
+
+            // 获取 X 轴
+            barChart.xAxis.enableGridDashedLine(10f, 10f, 0f)
+
+            barChart.axisLeft.apply {
+                enableGridDashedLine(10f, 10f, 0f)
+                axisMaximum = 200f
+                axisMaximum = -50f
+            }
+
+            axisRight.isEnabled = false
         }
 
+        setBarData()
     }
 
-    fun setData(num: Int) {
-        val xVals = ArrayList<IBarDataSet>()
-
-//        BarDataSet()
-
-//        for (i in 0 until num) {
-//            xVals.add("小谢$i")
-//        }
-
+    private fun setBarData() {
         val entries: ArrayList<BarEntry> = ArrayList()
-        entries.add(BarEntry(4f, 0f))
-        entries.add(BarEntry(8f, 1f))
-        entries.add(BarEntry(6f, 2f))
-        entries.add(BarEntry(12f, 3f))
-        entries.add(BarEntry(18f, 4f))
-        entries.add(BarEntry(9f, 5f))
 
-        val depenses = BarDataSet(entries, "depenses")
+        entries.add(BarEntry(0f, 30f))
+        entries.add(BarEntry(1f, 80f))
+        entries.add(BarEntry(2f, 60f))
+        entries.add(BarEntry(3f, 50f))
+        entries.add(BarEntry(4f, 70f))
+        entries.add(BarEntry(5f, 60f))
+
+        val set = BarDataSet(entries, "")
+        set.color = Color.rgb(155, 155, 155)
+        set.valueTextColor = Color.rgb(155, 155, 155)
+
+        barChart.data = BarData(set)
+    }
 
 
-        val yVals1 = ArrayList<BarEntry>()
-        val yVals2 = ArrayList<BarEntry>()
-        val yVals3 = ArrayList<BarEntry>()
-        for (i in 0 until num) {
-            val `val` = (Math.random() * num).toFloat()
-            yVals1.add(BarEntry(`val`, i.toFloat()))
-        }
-        for (i in 0 until num) {
-            val `val` = (Math.random() * num).toFloat()
-            yVals2.add(BarEntry(`val`, i.toFloat()))
-        }
-        for (i in 0 until num) {
-            val `val` = (Math.random() * num).toFloat()
-            yVals3.add(BarEntry(`val`, i.toFloat()))
+    /**  Line   */
+    private fun setLineChart() {
+        lineChart = findViewById(R.id.line_chart)
+        lineChart.apply {
+
         }
 
-//        // create 3 datasets with different types
-//        val set1 = BarDataSet(yVals1, "一季度")
-//        // set1.setColors(ColorTemplate.createColors(getApplicationContext(),
-//        // ColorTemplate.FRESH_COLORS));
-//        set1.color = Color.rgb(104, 241, 175)
-//        val set2 = BarDataSet(yVals2, "二季度")
-//        set2.color = Color.rgb(164, 228, 251)
-//        val set3 = BarDataSet(yVals3, "三季度")
-//        set3.color = Color.rgb(242, 247, 158)
-//        val dataSets = ArrayList<IBarDataSet>()
-//        dataSets.add(set1)
-//        dataSets.add(set2)
-//        dataSets.add(set3)
-//        val data = BarData(xVals, dataSets)
-//        // data.setValueFormatter(new LargeValueFormatter());
-//
-//        // add space between the dataset groups in percent of bar-width
-//        data.setValueFormatter(CustomerValueFormatter())
-//        data.setDrawValues(true)
-//        data.setValueTextColor(Color.BLACK)
-//        data.setValueTextSize(13f)
-//        data.setGroupSpace(80f) //设置组数据间距
-//        //data.setValueTypeface(tf);
-//        mChart.setData(data)
-//        mChart.animateXY(800, 800) //图表数据显示动画
-//        mChart.setVisibleXRangeMaximum(15) //设置屏幕显示条数
-//        mChart.invalidate()
+        setLineData()
+    }
+
+    private fun setLineData() {
+        val entries: MutableList<Entry> = ArrayList()
+        for (i in 0..11) entries.add(Entry(i.toFloat(), (10..100).random().toFloat()))
+
+        val dataSet = LineDataSet(entries, "Line Chart")
+        val lineData = LineData(dataSet)
+
+        lineChart.data = lineData
+    }
+
+
+
+    /**  Pie   */
+    private fun setPieChart() {
+        pieChart = findViewById(R.id.pie_chart)
+
+        setPieData()
+    }
+
+    private fun setPieData() {
+        val entries: MutableList<PieEntry> = ArrayList()
+        entries.apply {
+            add(PieEntry(56f, "boy"))
+            add(PieEntry(44f, "girl"))
+        }
+
+        val dataSet = PieDataSet(entries, "Label")
+        dataSet.setColors(Color.BLUE, Color.RED)
+
+
+        val pieData = PieData(dataSet)
+
+        pieChart.data = pieData
     }
 
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {
-        TODO("Not yet implemented")
     }
 
     override fun onNothingSelected() {
-        TODO("Not yet implemented")
     }
 }
